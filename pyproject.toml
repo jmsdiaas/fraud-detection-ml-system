@@ -4,14 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fraud-detection-ml-system"
-version = "0.1.0"
-description = "Fraud detection with supervised + anomaly models and practical MLOps"
+version = "0.2.0"
+description = "Synthetic fraud detection: hybrid ML, experiment tracking, API and MLOps"
 requires-python = ">=3.10"
-dependencies = ["numpy>=1.24,<3", "pandas>=2.0,<3", "scikit-learn>=1.3,<2", "joblib>=1.3,<2", "fastapi>=0.100,<1", "uvicorn>=0.23,<1", "pydantic>=2,<3"]
+dependencies = ["numpy>=1.24,<3", "pandas>=2.0,<3", "scikit-learn>=1.3,<2", "joblib>=1.3,<2", "fastapi>=0.100,<1", "uvicorn>=0.23,<1", "pydantic>=2,<3", "prometheus-client>=0.19,<1"]
 
 [project.optional-dependencies]
-dev = ["pytest>=7", "httpx>=0.24", "ruff>=0.6"]
-tracking = ["mlflow>=2.10,<4"]
+dev = ["pytest>=7", "httpx>=0.24", "ruff>=0.6", "xgboost>=2.0,<4"]
+boosting = ["xgboost>=2.0,<4"]
+tracking = ["mlflow>=2.10,<3"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -19,3 +20,7 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"

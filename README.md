@@ -1,15 +1,15 @@
 # Fraud Detection ML System
 
-**Synthetic fraud detection reference system** combining supervised classification, anomaly detection, temporal validation and ML engineering. Educational prototype, **not a production fraud engine**.
+**v0.2 | Synthetic fraud detection reference system** combining supervised classification, anomaly detection, temporal validation and ML engineering. Educational prototype, **not a production fraud engine**.
 
 ## Features
 
 - Reproducible synthetic transactional dataset, seeded with approximately 2% fraud.
 - Chronological train/validation/test split (60/20/20); train-only transformations.
-- Hybrid logistic regression and Isolation Forest, with weights chosen on validation PR-AUC.
+- Logistic regression and optional XGBoost, mixed with Isolation Forest; model selection on validation PR-AUC.
 - Manual-review-capacity threshold, test-set confusion matrix, recall, precision, PR-AUC and ROC-AUC.
 - FastAPI scoring, strict request schema, health/readiness endpoints.
-- PSI drift monitoring, automated pytest suite, GitHub Actions CI, Docker, optional MLflow logging.
+- PSI drift reports, Prometheus metrics, pytest, Actions CI, Docker, MLflow registry and optional GHCR publishing.
 - Architecture decisions, limitations and technical learning guide.
 
 ## Quick start
@@ -18,8 +18,8 @@
 python -m venv .venv
 # Windows: .venv\Scripts\activate
 # Unix: source .venv/bin/activate
-python -m pip install -e '.[dev]'
-python -m fraudml.train --n 12000 --review-fraction 0.05
+python -m pip install -e '.[dev,tracking]'
+python -m fraudml.train --n 12000 --review-fraction 0.05 --algorithm auto
 pytest -q
 uvicorn fraudml.api:app --reload
 ```
@@ -44,7 +44,7 @@ The Docker image trains a **synthetic demo model at build time**. In production,
 ## Testing
 
 ```bash
-ruff check src tests scripts
+ruff check src tests scripts --select E4,E7,E9
 pytest -q
 python scripts/check_drift.py
 ```
@@ -65,7 +65,7 @@ python scripts/check_drift.py
 - The model artifact uses pickle-based serialization: load only trusted artifacts.
 - Label maturity, fraud investigations, operational cost and governance are left as future upgrades.
 
-See [architecture](docs/architecture.md) and [learning path](docs/learning_path.md).
+See [architecture](docs/architecture.md), [MLOps guide](docs/mlops.md) and [learning path](docs/learning_path.md).
 
 ## Roadmap
 
