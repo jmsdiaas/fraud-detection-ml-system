@@ -1,0 +1,30 @@
+name: Release quality gate
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  release-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -e '.[dev,boosting]'
+      - run: pytest -q tests/test_release.py tests/test_secure_api.py
+      - run: python -m fraudml.release --n 12000 --algorithm auto
+      - name: Verify gated release manifest
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('artifacts/release/release.json').read_text())
+          assert report['dataset'] == 'synthetic'
+          assert report['test_metrics']['pr_auc'] >= 0
+          assert len(report['model_sha256']) == 64
+          print('Synthetic release report validated; NOT production approval')
+          PY
+      - run: docker build -f Dockerfile.release -t fraud-release-demo .

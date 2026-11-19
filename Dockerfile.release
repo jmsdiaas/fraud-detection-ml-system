@@ -1,0 +1,11 @@
+FROM python:3.11-slim
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+WORKDIR /app
+COPY pyproject.toml README.md ./
+COPY src ./src
+RUN pip install --no-cache-dir . \
+    && python -m fraudml.release --n 12000 --algorithm logistic \
+    && chown -R 65532:65532 /app
+USER 65532:65532
+EXPOSE 8000
+CMD ["uvicorn","fraudml.secure_api:app","--host","0.0.0.0","--port","8000","--proxy-headers"]

@@ -1,6 +1,8 @@
 # Fraud Detection ML System
 
-**v0.3 | Synthetic fraud detection reference system** combining supervised classification, anomaly detection, temporal validation and ML engineering. Educational prototype, **not a production fraud engine**.
+**v0.4 | Synthetic fraud detection reference system** combining supervised classification, anomaly detection, temporal validation and ML engineering. Educational prototype, **not a production fraud engine**.
+
+**PRODUCTION GATE: Not approved for real payment traffic.** The trained model is synthetic and serving is demo-only. See [production readiness](docs/production_readiness.md).
 
 ## Features
 
@@ -35,6 +37,16 @@ curl -X POST http://127.0.0.1:8000/predict \
   -H 'Content-Type: application/json' \
   -d '{"amount":190,"hour":2,"account_age_days":12,"transactions_24h":8,"avg_amount_30d":30,"distance_km":88,"device_new":1,"ip_risk_score":0.8,"merchant_risk_score":0.7}'
 ```
+
+## Release candidate: calibrated and authenticated demo
+
+```bash
+python -m fraudml.release --n 12000 --algorithm auto
+export FRAUD_API_KEY='generate-a-local-secret'
+uvicorn fraudml.secure_api:app --host 127.0.0.1 --port 8000
+```
+
+Use `POST /v1/predict` with the `x-api-key` header. Model artifact integrity is checked against the release manifest. The production-mode switch explicitly blocks real transactions.
 
 ## Docker
 
