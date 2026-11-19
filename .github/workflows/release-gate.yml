@@ -23,7 +23,12 @@ jobs:
           from pathlib import Path
           report = json.loads(Path('artifacts/release/release.json').read_text())
           assert report['dataset'] == 'synthetic'
-          assert report['test_metrics']['pr_auc'] >= 0
+          test = report['test_metrics']
+          prevalence = (test['tp'] + test['fn']) / report['split_sizes']['test']
+          assert test['pr_auc'] > 2 * prevalence, 'PR-AUC below synthetic baseline gate'
+          assert report['test_cost']['total_cost'] <= report['test_no_review_cost'], 'Cost worse than no-review baseline'
+          assert report['test_calibration']['brier_calibrated'] <= report['test_calibration']['brier_raw'], 'Calibration worsened'
+          assert report['dataset'] == 'synthetic'
           assert len(report['model_sha256']) == 64
           print('Synthetic release report validated; NOT production approval')
           PY
